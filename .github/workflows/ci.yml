@@ -46,7 +46,7 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-        - name: Deploy to GitHub Pages
+        - name: ghp
           uses: lidongxun967/my-website
           with:
             srcdir: './build'  # 部署的目录
