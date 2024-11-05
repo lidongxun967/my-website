@@ -46,6 +46,14 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v4
+        - name: Deploy to GitHub Pages-2
+          uses: ./.github/workflows/gh-pages.yml
+          with:
+            srcdir: './build'  # 部署的目录
+            branch: 'gh-pages'  # 目标分支
+            cname: 'example.com'  # CNAME 文件
+            nojekyll: true  # 包含 .nojekyll 文件
+            push: true  # 是否推送更改到远程仓库

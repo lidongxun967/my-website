@@ -1,0 +1,137 @@
+name: Deploy to GitHub Pages
+
+on:
+  workflow_call:
+    inputs:
+      srcdir:
+        description: 'The directory to deploy (default: ./docs)'
+        required: true
+        type: string
+        default: './docs'
+      branch:
+        description: 'The branch to deploy to (default: gh-pages)'
+        required: false
+        type: string
+        default: 'gh-pages'
+      cname:
+        description: 'Custom CNAME to set (optional)'
+        required: false
+        type: string
+        default: ''
+      nojekyll:
+        description: 'Whether to include .nojekyll (default: true)'
+        required: false
+        type: boolean
+        default: true
+      push:
+        description: 'Whether to push changes to remote (default: false)'
+        required: false
+        type: boolean
+        default: false
+      force:
+        description: 'Whether to force push (default: false)'
+        required: false
+        type: boolean
+        default: false
+      remote:
+        description: 'The remote repository (default: origin)'
+        required: false
+        type: string
+        default: 'origin'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 检出代码
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 设置 Git 配置为 GitHub 提供的用户信息
+    - name: Set up Git
+      run: |
+        git config user.name "${{ github.actor }}"
+        git config user.email "${{ github.event.pusher.email }}"
+
+    # 安装 Python 和依赖
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install python-dateutil
+
+    # 创建 Python 脚本
+    - name: Create deploy script
+      run: |
+        echo 'import os
+        import subprocess
+        from datetime import datetime
+        from dateutil import tz
+
+        def run_command(command):
+            result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            result.check_returncode()
+            return result.stdout.strip()
+
+        def get_git_config(key):
+            return run_command(["git", "config", key])
+
+        def create_commit_message():
+            return "Update documentation for GitHub Pages"
+
+        def deploy_to_gh_pages(srcdir, branch="gh-pages", cname=None, nojekyll=False, push=False, remote="origin"):
+            if not os.path.isdir(srcdir):
+                raise Exception(f'Not a directory: {srcdir}')
+            
+            # Check if we are in a git repository
+            run_command(["git", "rev-parse"])
+
+            # Fetch the latest changes and rebase
+            run_command(["git", "fetch", remote])
+            run_command(["git", "rebase", f"{remote}/{branch}"])
+
+            # Checkout the gh-pages branch
+            run_command(["git", "checkout", branch])
+
+            # Add .nojekyll if needed
+            if nojekyll:
+                with open(os.path.join(srcdir, '.nojekyll'), 'w') as f:
+                    f.write('')
+                run_command(["git", "add", ".nojekyll"])
+
+            # Add CNAME if provided
+            if cname:
+                with open(os.path.join(srcdir, 'CNAME'), 'w') as f:
+                    f.write(cname)
+                run_command(["git", "add", "CNAME"])
+
+            # Add files to commit
+            run_command(["git", "add", "."])
+
+            # Commit changes
+            run_command(["git", "commit", "-m", create_commit_message()])
+
+            # Push changes if requested
+            if push:
+                run_command(["git", "push", remote, branch])
+
+        # Deploy the content to gh-pages
+        deploy_to_gh_pages(
+            srcdir="${{ inputs.srcdir }}",
+            branch="${{ inputs.branch }}",
+            cname="${{ inputs.cname }}",
+            nojekyll="${{ inputs.nojekyll }}",
+            push="${{ inputs.push }}",
+            remote="${{ inputs.remote }}"
+        )
+        ' > deploy.py
+
+    # 执行部署脚本
+    - name: Deploy to gh-pages
+      run: |
+        python deploy.py
