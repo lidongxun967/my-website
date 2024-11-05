@@ -50,7 +50,7 @@ jobs:
           id: deployment
           uses: actions/deploy-pages@v4
         - name: ghp
-          uses: lidongxun967/my-website
+          uses: lidongxun967/gh-pages@v1
           with:
             srcdir: './build'  # 部署的目录
             branch: 'gh-pages'  # 目标分支
