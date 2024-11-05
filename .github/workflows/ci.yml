@@ -49,11 +49,8 @@ jobs:
         - name: Deploy to GitHub Pages
           id: deployment
           uses: actions/deploy-pages@v4
-        - name: ghp
-          uses: lidongxun967/gh-pages@v1
+        - name: Deploy
+          uses: peaceiris/actions-gh-pages@v4
           with:
-            srcdir: './build'  # 部署的目录
-            branch: 'gh-pages'  # 目标分支
-            cname: 'example.com'  # CNAME 文件
-            nojekyll: true  # 包含 .nojekyll 文件
-            push: true  # 是否推送更改到远程仓库
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            publish_dir: ./build
