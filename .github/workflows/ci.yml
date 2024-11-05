@@ -46,7 +46,7 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-        - name: Deploy to GitHub Pages-2
+        - name: Deploy to GitHub Pages
           uses: gh-pages
           with:
             srcdir: './build'  # 部署的目录
