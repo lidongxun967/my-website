@@ -46,6 +46,9 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
+        - name: Deploy to GitHub Pages
+          id: deployment
+          uses: actions/deploy-pages@v4
         - name: ghp
           uses: lidongxun967/my-website
           with:
