@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
         - name: Deploy to GitHub Pages
-          uses: gh-pages
+          uses: lidongxun967/my-website
           with:
             srcdir: './build'  # 部署的目录
             branch: 'gh-pages'  # 目标分支
