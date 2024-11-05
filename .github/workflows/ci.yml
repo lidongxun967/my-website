@@ -46,11 +46,8 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-        - name: Deploy to GitHub Pages
-          id: deployment
-          uses: actions/deploy-pages@v4
         - name: Deploy to GitHub Pages-2
-          uses: ./.github/workflows/gh-pages.yml
+          uses: gh-pages
           with:
             srcdir: './build'  # 部署的目录
             branch: 'gh-pages'  # 目标分支
